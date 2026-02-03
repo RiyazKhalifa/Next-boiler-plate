@@ -155,5 +155,22 @@
     "manage_site_settings_information": "إدارة إعدادات التطبيق العالمية، وتفاصيل الاتصال، والروابط الاجتماعية",
     "search_by_role_name_and_arabic_name": "البحث بالاسم والاسم العربي",
     "search_by_name_and_email": "البحث بالاسم والبريد الإلكتروني",
-    "search_by_name_and_arabic_name": "البحث حسب الاسم والاسم بالعربي"
+    "search_by_name_and_arabic_name": "البحث حسب الاسم والاسم بالعربي",
+    "metadata": {
+        "title": "لوحة تحكم EWW",
+        "users": "المستخدمون",
+        "user": "المستخدم",
+        "roles": "الأدوار",
+        "role": "الدور",
+        "customers": "العملاء",
+        "customer": "العميل",
+        "site_settings": "إعدادات الموقع",
+        "faqs": "الأسئلة الشائعة",
+        "cms": "نظام إدارة المحتوى",
+        "dashboard": "لوحة التحكم",
+        "account": "الحساب",
+        "login": "تسجيل الدخول",
+        "forgot_password": "نسيت كلمة المرور",
+        "reset_password": "إعادة تعيين كلمة المرور"
+    }
 }

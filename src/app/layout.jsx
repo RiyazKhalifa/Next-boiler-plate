@@ -20,13 +20,9 @@ import { LoaderProvider } from '@/contexts/LoaderContext'
 import GlobalLoader from '@/components/GlobalLoader'
 import '@/libs/i18n'
 
-export const metadata = {
-    title: 'EWW Admin Dashboard',
-    description: 'EWW',
-    icons: {
-        icon: '/images/logo.png'
-    }
-}
+import { translateMetadata } from '@/utils/metadata';
+
+export const generateMetadata = () => translateMetadata('title', 'mainLayout');
 
 const RootLayout = async ({ children }) => {
     const systemMode = getSystemMode() // if async, keep await, but cookies() is sync

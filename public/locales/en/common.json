@@ -156,5 +156,22 @@
     "manage_site_settings_information": "Manage global application settings, contact details, and social links",
     "search_by_role_name_and_arabic_name": "Search by Name and Arabic Name",
     "search_by_name_and_email": "Search by Name and Email",
-    "search_by_name_and_arabic_name": "Search by Name and Arabic Name"
+    "search_by_name_and_arabic_name": "Search by Name and Arabic Name",
+    "metadata": {
+        "title": "EWW Admin Dashboard",
+        "users": "Users",
+        "user": "User",
+        "roles": "Roles",
+        "role": "Role",
+        "customers": "Customers",
+        "customer": "Customer",
+        "site_settings": "Site Settings",
+        "faqs": "FAQs",
+        "cms": "CMS",
+        "dashboard": "Dashboard",
+        "account": "Account",
+        "login": "Login",
+        "forgot_password": "Forgot Password",
+        "reset_password": "Reset Password"
+    }
 }
