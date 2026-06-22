@@ -8,9 +8,11 @@ import { valibotResolver } from '@hookform/resolvers/valibot'
 import { object, string, nonEmpty, minLength, email as emailValidator, pipe } from 'valibot'
 import { useTranslation } from 'react-i18next'
 import CustomTextField from '@core/components/mui/TextField'
+import CustomAvatar from '@core/components/mui/Avatar'
 import { useDispatch } from 'react-redux'
 import { setUser } from '@/store/userSlice'
 import { withAuthCheck } from '@/utils/authWrapper'
+import { useLoader } from '@/contexts/LoaderContext'
 import toast from 'react-hot-toast'
 import { defaultAvatar } from '@/configs/imageConfig'
 import NextImage from '@/components/NextImage'
@@ -103,6 +105,19 @@ const AccountDetails = ({ userProfile, updateAction }) => {
     return (
         <div className='flex flex-col gap-6'>
             <div className='bg-white rounded-xl p-6 shadow-sm border border-gray-100'>
+                <div className='flex items-center gap-4 border-b pb-5 mb-6'>
+                    <CustomAvatar color='primary' skin='light' variant='rounded' size={44}>
+                        <i className='tabler-user-cog text-[28px]' />
+                    </CustomAvatar>
+                    <div className='flex flex-col'>
+                        <Typography variant='h5' className='font-bold' color="text.primary">
+                            {t('account_details')}
+                        </Typography>
+                        <Typography variant='body2' className='text-slate-500'>
+                            {t('manage_your_account_information')}
+                        </Typography>
+                    </div>
+                </div>
                 <div className='flex flex-col md:flex-row items-center gap-8 mb-8'>
                     <div className='relative'>
                         <div className='p-1.5 bg-white border-[3px] border-gray-100 rounded-full shadow-sm flex items-center justify-center overflow-hidden' style={{ width: 120, height: 120 }}>
@@ -200,14 +215,15 @@ const AccountDetails = ({ userProfile, updateAction }) => {
 
                     <div className='flex justify-end pt-6 border-t border-gray-100 mt-6 gap-3'>
                         <Button
-                            variant='text'
+                            variant='tonal'
+                            color='secondary'
+                            type='button'
                             disabled={!isDirty && !selectedFile}
                             onClick={() => {
                                 reset()
                                 setSelectedFile(null)
                                 setImgSrc(getImageUrl(savedImage))
                             }}
-                            className='px-8 py-2.5 rounded-l font-semibold normal-case min-w-[140px] bg-[#FFE5E6] text-[#FF4D49] hover:bg-[#FFD6D6]'
                         >
                             {t('cancel')}
                         </Button>

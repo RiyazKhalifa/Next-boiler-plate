@@ -18,13 +18,13 @@ const theme = (settings, mode, direction) => {
         colorSchemes: colorSchemes(settings.skin),
         ...spacing,
         shape: {
-            borderRadius: 6,
+            borderRadius: 8,
             customBorderRadius: {
-                xs: 2,
-                sm: 4,
-                md: 6,
-                lg: 8,
-                xl: 10
+                xs: 3,
+                sm: 6,
+                md: 10,
+                lg: 14,
+                xl: 20
             }
         },
         shadows: shadows(mode),

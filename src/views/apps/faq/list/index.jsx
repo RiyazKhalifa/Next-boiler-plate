@@ -4,15 +4,18 @@ import { useFaqs } from '@/hooks/getFaqs'
 import Grid from '@mui/material/Grid2'
 import FaqListTable from './FaqListTable'
 import { useLoader } from '@/contexts/LoaderContext'
+import TableSkeleton from '@/components/TableSkeleton'
 
 const FaqList = ({ addFaq, viewGetFaqData, showEditRecords }) => {
-    const { faqs, pagination, fetchFaqs } = useFaqs()
+    const { faqs, pagination, loading, fetched, fetchFaqs } = useFaqs()
     const { setLoading } = useLoader()
 
     const refreshFaqs = async () => {
-        setLoading(true)
-        await fetchFaqs('', pagination.page, pagination.limit)
-        setLoading(false)
+        fetchFaqs('', pagination.page, pagination.limit)
+    }
+
+    if (loading && !fetched) {
+        return <TableSkeleton columns={3} rows={10} />
     }
 
     return (

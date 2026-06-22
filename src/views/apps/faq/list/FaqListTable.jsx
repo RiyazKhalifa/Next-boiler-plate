@@ -2,13 +2,13 @@
 
 import { useEffect, useState, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
-import { Confirm } from 'notiflix/build/notiflix-confirm-aio'
 import toast from 'react-hot-toast'
 import Switch from '@mui/material/Switch'
 import { updateStatus, deleteRecord, updateSequence } from '@/app/server/actions/common'
 import { withAuthCheck } from '@/utils/authWrapper'
 import { useRouter } from 'next/navigation'
-import { Card, CardHeader, Button, Typography, IconButton, MenuItem, Slide } from '@mui/material'
+import { Card, CardHeader, Button, Typography, IconButton, MenuItem, Tooltip } from '@mui/material'
+import DeleteConfirmationDialog from '@/components/DeleteConfirmationDialog'
 import {
     createColumnHelper,
     flexRender,
@@ -24,6 +24,7 @@ import AddFaqForm from './AddFaqDrawer'
 import TablePaginationComponent from '@/components/TablePaginationComponent'
 import DebouncedInput from '@/components/DebouncedInput'
 import CustomTextField from '@core/components/mui/TextField'
+import CustomAvatar from '@core/components/mui/Avatar'
 import tableStyles from '@core/styles/table.module.css'
 import primaryColorConfig from '@/configs/primaryColorConfig'
 import Can from '@/libs/can'
@@ -76,6 +77,8 @@ const FaqListTable = ({
 
     const [addFaqOpen, setAddFaqOpen] = useState(false)
     const [editingFaq, setEditingFaq] = useState(null)
+    const [deleteOpen, setDeleteOpen] = useState(false)
+    const [selectedToDelete, setSelectedToDelete] = useState(null)
     const [rowSelection, setRowSelection] = useState({})
     const [data, setData] = useState(tableData || [])
     const [globalFilter, setGlobalFilter] = useState('')
@@ -121,31 +124,8 @@ const FaqListTable = ({
     }
 
     const handleDeleteFaq = id => {
-        Confirm.show(
-            t('delete_confirmation'),
-            t('delete_confirmation_message'),
-            t('yes'),
-            t('no'),
-            async () => {
-                setLoading(true)
-                const result = await withAuthCheck(() =>
-                    deleteRecord({
-                        module: 'faq',
-                        id: id
-                    })
-                )
-                if (!result) return
-                if (result.status) {
-                    refreshFaqs()
-                    toast.success(result.message)
-                } else {
-                    toast.error(result.message)
-                }
-                setLoading(false)
-            },
-            () => { },
-            { titleColor: primary1Color, okButtonBackground: primary1Color, cancelButtonBackground: '#ccc' }
-        )
+        setSelectedToDelete(id)
+        setDeleteOpen(true)
     }
 
     const columns = useMemo(
@@ -214,23 +194,6 @@ const FaqListTable = ({
                                     setLoading(false)
                                 }
                             }}
-                            sx={{
-                                '& .MuiSwitch-switchBase.Mui-checked': {
-                                    color: '#fff',
-                                    transform: 'translateX(20px)'
-                                },
-                                '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                                    backgroundColor: 'green',
-                                    opacity: 1
-                                },
-                                '& .MuiSwitch-switchBase:not(.Mui-checked)': {
-                                    color: '#fff'
-                                },
-                                '& .MuiSwitch-switchBase:not(.Mui-checked) + .MuiSwitch-track': {
-                                    backgroundColor: 'red',
-                                    opacity: 1
-                                }
-                            }}
                         />
                     )
                 },
@@ -241,34 +204,34 @@ const FaqListTable = ({
                 cell: ({ row }) => (
                     <div className='flex items-center gap-2'>
                         <Can permission='faq.update'>
-                            <IconButton
-                                sx={{ transition: 'all 0.2s', '&:hover': { backgroundColor: 'action.hover', '& i': { opacity: 0.7 } } }}
-                                onClick={() => handleOpenEditFaq(row.original.id)}
-                            >
-                                <i className='tabler-edit text-[22px] text-slate-600' />
-                            </IconButton>
+                            <Tooltip title={t('edit')}>
+                                <IconButton
+                                    sx={{ transition: 'all 0.2s', '&:hover': { backgroundColor: 'action.hover', '& i': { opacity: 0.7 } } }}
+                                    onClick={() => handleOpenEditFaq(row.original.id)}
+                                >
+                                    <i className='tabler-edit text-[22px] text-textSecondary' />
+                                </IconButton>
+                            </Tooltip>
                         </Can>
                         <Can permission='faq.view'>
-                            <IconButton
-                                sx={{ transition: 'all 0.2s', '&:hover': { backgroundColor: 'action.hover', '& i': { opacity: 0.7 } } }}
-                                onClick={() => {
-                                    setLoading(true)
-                                    setTimeout(() => {
-                                        router.push(`/faqs/view/${row.original.id}`)
-                                        setLoading(false)
-                                    }, 300)
-                                }}
-                            >
-                                <i className='tabler-eye text-[22px] text-blue-600' />
-                            </IconButton>
+                            <Tooltip title={t('view')}>
+                                <IconButton
+                                    sx={{ transition: 'all 0.2s', '&:hover': { backgroundColor: 'action.hover', '& i': { opacity: 0.7 } } }}
+                                    onClick={() => router.push(`/faqs/view/${row.original.id}`)}
+                                >
+                                    <i className='tabler-eye text-[22px] text-textSecondary' />
+                                </IconButton>
+                            </Tooltip>
                         </Can>
                         <Can permission='faq.delete'>
-                            <IconButton
-                                sx={{ transition: 'all 0.2s', '&:hover': { backgroundColor: 'action.hover', '& i': { opacity: 0.7 } } }}
-                                onClick={() => handleDeleteFaq(row.original.id)}
-                            >
-                                <i className='tabler-trash text-[22px] text-rose-600' />
-                            </IconButton>
+                            <Tooltip title={t('delete')}>
+                                <IconButton
+                                    sx={{ transition: 'all 0.2s', '&:hover': { backgroundColor: 'action.hover', '& i': { opacity: 0.7 } } }}
+                                    onClick={() => handleDeleteFaq(row.original.id)}
+                                >
+                                    <i className='tabler-trash text-[22px] text-textSecondary' />
+                                </IconButton>
+                            </Tooltip>
                         </Can>
                     </div>
                 ),
@@ -337,24 +300,32 @@ const FaqListTable = ({
 
     return (
         <>
-            <Slide direction='down' in={addFaqOpen} mountOnEnter unmountOnExit>
-                <div>
-                    <AddFaqForm
-                        open={addFaqOpen}
-                        handleClose={() => {
-                            setAddFaqOpen(false)
-                            setEditingFaq(null)
-                        }}
-                        addFaq={addFaq}
-                        editedFaq={editingFaq}
-                        updateFaq={updateFaq}
-                        refreshFaqs={refreshFaqs}
-                        setLoading={setLoading}
-                    />
-                </div>
-            </Slide>
+            <AddFaqForm
+                open={addFaqOpen}
+                handleClose={() => {
+                    setAddFaqOpen(false)
+                    setEditingFaq(null)
+                }}
+                addFaq={addFaq}
+                editedFaq={editingFaq}
+                updateFaq={updateFaq}
+                refreshFaqs={refreshFaqs}
+                setLoading={setLoading}
+            />
             <Card className='overflow-hidden'>
-                <CardHeader title={t('faqs')} className='pbe-4' />
+                <CardHeader
+                    className='pbe-4'
+                    title={
+                        <div className='flex items-center gap-3'>
+                            <CustomAvatar color='primary' skin='light' variant='rounded' size={34}>
+                                <i className='tabler-question-mark text-[22px]' />
+                            </CustomAvatar>
+                            <Typography variant='h5' className='font-bold'>
+                                {t('faqs')}
+                            </Typography>
+                        </div>
+                    }
+                />
                 <div className='flex justify-between flex-col md:flex-row items-start md:items-center p-6 border-bs gap-4'>
                     <CustomTextField
                         select
@@ -421,6 +392,28 @@ const FaqListTable = ({
                     </div>
                 </DndContext>
                 <TablePaginationComponent table={table} pagination={pagination} />
+                <DeleteConfirmationDialog
+                    open={deleteOpen}
+                    handleClose={() => setDeleteOpen(false)}
+                    onConfirm={async () => {
+                        setLoading(true)
+                        const result = await withAuthCheck(() =>
+                            deleteRecord({
+                                module: 'faq',
+                                id: selectedToDelete
+                            })
+                        )
+                        if (result?.status) {
+                            refreshFaqs()
+                            toast.success(result.message)
+                        } else {
+                            toast.error(result?.message)
+                        }
+                        setLoading(false)
+                    }}
+                    title={t('delete_confirmation_title')}
+                    message={t('delete_confirmation_message')}
+                />
             </Card>
         </>
     )

@@ -9,6 +9,7 @@ import toast from 'react-hot-toast'
 import { useTranslation } from 'react-i18next'
 import { withAuthCheck } from '@/utils/authWrapper'
 import CustomTextField from '@core/components/mui/TextField'
+import CustomAvatar from '@core/components/mui/Avatar'
 import CustomIconButton from '@core/components/mui/IconButton'
 import { useEditor, EditorContent } from '@tiptap/react'
 import { StarterKit } from '@tiptap/starter-kit'
@@ -147,11 +148,10 @@ const EditCmsForm = ({ open, fetchCms, updateCms, editedCms, handleClose, setLoa
                 return
             }
 
+            setLoading(false)
+            handleClose()
             toast.success(t(res?.message) || t('messages.cms_updated_successfully'))
-            setTimeout(() => {
-                handleClose()
-                reset()
-            }, 2000)
+            fetchCms()
         } catch (err) {
             console.error('Error updating CMS:', err)
             toast.error(t(err?.response?.data?.message) || t('validation.something_went_wrong'))
@@ -169,11 +169,18 @@ const EditCmsForm = ({ open, fetchCms, updateCms, editedCms, handleClose, setLoa
 
     return (
         <div className='p-6 bg-white shadow-md rounded-md mb-6'>
-            <div className='border-b pb-4 mb-6'>
-                <Typography variant='h4'>
-                    {t('edit_cms')}
-                </Typography>
-                <Typography>{t('manage_cms_information')}</Typography>
+            <div className='flex items-center gap-4 border-b pb-5 mb-6'>
+                <CustomAvatar color='primary' skin='light' variant='rounded' size={44}>
+                    <i className='tabler-file-text text-[28px]' />
+                </CustomAvatar>
+                <div className='flex flex-col'>
+                    <Typography variant='h5' className='font-bold' color="text.primary">
+                        {t('edit_cms')}
+                    </Typography>
+                    <Typography variant='body2' className='text-slate-500'>
+                        {t('manage_cms_information')}
+                    </Typography>
+                </div>
             </div>
 
             <form onSubmit={handleSubmit(onSubmit)}>
@@ -249,15 +256,21 @@ const EditCmsForm = ({ open, fetchCms, updateCms, editedCms, handleClose, setLoa
 
                     <Grid item xs={12}>
                         <div className='flex items-center flex-row-reverse gap-4 mt-4 border-t pt-4'>
-                            <Button variant='contained' type='submit' disabled={isSubmitting}>
-                                {isSubmitting ? (
-                                    <div className='flex items-center gap-2'>
-                                        <i className='tabler-loader animate-spin' />
-                                        <span>{t('submitting')}</span>
-                                    </div>
-                                ) : t('submit')}
+                            <Button
+                                variant='contained'
+                                type='submit'
+                                disabled={isSubmitting}
+                                startIcon={isSubmitting ? <i className='tabler-loader animate-spin' /> : <i className='tabler-device-floppy' />}
+                            >
+                                {isSubmitting ? t('submitting') : t('update_cms')}
                             </Button>
-                            <Button variant='tonal' color='error' type='button' onClick={handleReset}>
+                            <Button
+                                variant='tonal'
+                                color='secondary'
+                                type='button'
+                                onClick={handleReset}
+                                startIcon={<i className='tabler-x' />}
+                            >
                                 {t('cancel')}
                             </Button>
                         </div>

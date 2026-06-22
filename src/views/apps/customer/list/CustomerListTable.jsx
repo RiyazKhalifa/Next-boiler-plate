@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next'
 import { updateStatus } from '@/app/server/actions/common'
 import { withAuthCheck } from '@/utils/authWrapper'
 import { useRouter } from 'next/navigation'
-import { Card, CardHeader, Typography, IconButton, MenuItem } from '@mui/material'
+import { Card, CardHeader, Button, Typography, IconButton, MenuItem, Slide, Tooltip } from '@mui/material'
 import { createColumnHelper, flexRender, getCoreRowModel, useReactTable, getSortedRowModel } from '@tanstack/react-table'
 import TablePaginationComponent from '@/components/TablePaginationComponent'
 import DebouncedInput from '@/components/DebouncedInput'
@@ -85,6 +85,7 @@ const CustomerListTable = ({ tableData, pagination, setLoading, fetchCustomers, 
                             onChange={async e => {
                                 setLoading(true)
                                 const prevStatus = row.original.status
+
                                 const newStatus = e.target.checked ? 'active' : 'inactive'
                                 try {
                                     const res = await withAuthCheck(() =>
@@ -115,23 +116,6 @@ const CustomerListTable = ({ tableData, pagination, setLoading, fetchCustomers, 
                                     setLoading(false)
                                 }
                             }}
-                            sx={{
-                                '& .MuiSwitch-switchBase.Mui-checked': {
-                                    color: '#fff',
-                                    transform: 'translateX(20px)'
-                                },
-                                '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                                    backgroundColor: 'green',
-                                    opacity: 1
-                                },
-                                '& .MuiSwitch-switchBase:not(.Mui-checked)': {
-                                    color: '#fff'
-                                },
-                                '& .MuiSwitch-switchBase:not(.Mui-checked) + .MuiSwitch-track': {
-                                    backgroundColor: 'red',
-                                    opacity: 1
-                                }
-                            }}
                         />
                     )
                 },
@@ -141,18 +125,14 @@ const CustomerListTable = ({ tableData, pagination, setLoading, fetchCustomers, 
                 header: t('action'),
                 cell: ({ row }) => (
                     <Can permission='customer.view'>
-                        <IconButton
-                            className='transition-all duration-200'
-                            onClick={() => {
-                                setLoading(true)
-                                setTimeout(() => {
-                                    router.push(`/customers/view/${row.original.id}`)
-                                    setLoading(false)
-                                }, 300)
-                            }}
-                        >
-                            <i className='tabler-eye text-[22px] text-blue-600' />
-                        </IconButton>
+                        <Tooltip title={t('view')}>
+                            <IconButton
+                                className='transition-all duration-200'
+                                onClick={() => router.push(`/customers/view/${row.original.id}`)}
+                            >
+                                <i className='tabler-eye text-[22px] text-textSecondary' />
+                            </IconButton>
+                        </Tooltip>
                     </Can>
                 ),
                 enableSorting: false
@@ -192,7 +172,19 @@ const CustomerListTable = ({ tableData, pagination, setLoading, fetchCustomers, 
 
     return (
         <Card>
-            <CardHeader title={t('customers')} className='pbe-4' />
+            <CardHeader
+                className='pbe-4'
+                title={
+                    <div className='flex items-center gap-3'>
+                        <CustomAvatar color='primary' skin='light' variant='rounded' size={34}>
+                            <i className='tabler-users-group text-[22px]' />
+                        </CustomAvatar>
+                        <Typography variant='h5' className='font-bold'>
+                            {t('customers')}
+                        </Typography>
+                    </div>
+                }
+            />
 
             <div className='flex justify-between flex-col md:flex-row items-start md:items-center p-6 border-bs gap-4'>
                 <CustomTextField

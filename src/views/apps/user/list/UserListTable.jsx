@@ -4,14 +4,8 @@ import { useEffect, useState, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import { Confirm } from 'notiflix/build/notiflix-confirm-aio'
 import { withAuthCheck } from '@/utils/authWrapper'
-import Card from '@mui/material/Card'
-import Button from '@mui/material/Button'
-import Typography from '@mui/material/Typography'
-import IconButton from '@mui/material/IconButton'
-import MenuItem from '@mui/material/MenuItem'
-import Slide from '@mui/material/Slide'
+import { Card, CardHeader, Button, Typography, IconButton, MenuItem, Slide, Tooltip } from '@mui/material'
 import Switch from '@mui/material/Switch'
-import CardHeader from '@mui/material/CardHeader'
 import { useRouter } from 'next/navigation'
 import { createColumnHelper, flexRender, getCoreRowModel, useReactTable, getSortedRowModel } from '@tanstack/react-table'
 import classnames from 'classnames'
@@ -28,6 +22,7 @@ import Can from '@/libs/can'
 import toast from 'react-hot-toast'
 import { updateStatus, deleteRecord } from '@/app/server/actions/common'
 import { useSelector } from 'react-redux'
+import DeleteConfirmationDialog from '@/components/DeleteConfirmationDialog'
 
 const columnHelper = createColumnHelper()
 
@@ -54,6 +49,8 @@ const UserListTable = ({
         pageIndex: (pagination.page || 1) - 1,
         pageSize: pagination.limit || 10
     })
+    const [deleteOpen, setDeleteOpen] = useState(false)
+    const [selectedToDelete, setSelectedToDelete] = useState(null)
 
     const router = useRouter()
 
@@ -175,23 +172,6 @@ const UserListTable = ({
                                     setLoading(false)
                                 }
                             }}
-                            sx={{
-                                '& .MuiSwitch-switchBase.Mui-checked': {
-                                    color: '#fff',
-                                    transform: 'translateX(20px)'
-                                },
-                                '& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-                                    backgroundColor: 'green',
-                                    opacity: 1
-                                },
-                                '& .MuiSwitch-switchBase:not(.Mui-checked)': {
-                                    color: '#fff'
-                                },
-                                '& .MuiSwitch-switchBase:not(.Mui-checked) + .MuiSwitch-track': {
-                                    backgroundColor: 'red',
-                                    opacity: 1
-                                }
-                            }}
                         />
                     )
                 },
@@ -202,77 +182,46 @@ const UserListTable = ({
                 cell: ({ row }) => (
                     <div variant='contained' className='flex items-center'>
                         <Can permission='user.update'>
-                            <IconButton
-                                onClick={async () => {
-                                    setLoading(true)
-                                    const result = await editUserData(row.original.id)
-                                    if (result.status) {
-                                        if (result.data.profile_image) {
-                                            result.data.profile_image = `${result.data.profile_image}?v=${new Date().getTime()}`
+                            <Tooltip title={t('edit')}>
+                                <IconButton
+                                    onClick={async () => {
+                                        setLoading(true)
+                                        const result = await editUserData(row.original.id)
+                                        if (result?.status) {
+                                            setEditingUser(result.data)
+                                            setAddUserOpen(true)
+                                            window.scrollTo({ top: 0, behavior: 'smooth' })
+                                        } else {
+                                            toast.error(result?.message)
                                         }
-                                        setEditingUser(result)
-                                        setAddUserOpen(true)
-                                    } else {
-                                        toast.error('Failed to load user data: ' + result.message)
-                                    }
-                                    setLoading(false)
-                                }}
-                            >
-                                <i className='tabler-edit text-[22px] text-slate-600' />
-                            </IconButton>
+                                        setLoading(false)
+                                    }}
+                                >
+                                    <i className='tabler-edit text-[22px] text-textSecondary' />
+                                </IconButton>
+                            </Tooltip>
                         </Can>
                         <Can permission='user.view'>
-                            <IconButton
-                                onClick={() => {
-                                    setLoading(true)
-                                    setTimeout(() => {
-                                        router.push(`/users/view/${row.original.id}`)
-                                        setLoading(false)
-                                    }, 300)
-                                }}
-                            >
-                                <i className='tabler-eye text-[22px] text-blue-600' />
-                            </IconButton>
+                            <Tooltip title={t('view')}>
+                                <IconButton
+                                    onClick={() => router.push(`/users/view/${row.original.id}`)}
+                                >
+                                    <i className='tabler-eye text-[22px] text-textSecondary' />
+                                </IconButton>
+                            </Tooltip>
                         </Can>
                         <Can permission='user.delete'>
                             {row.original.id !== 1 && userData.id !== row.original.id && (
-                                <IconButton
-                                    onClick={() => {
-                                        const primaryColor = primaryColorConfig.find(c => c.name === 'primary')?.dark || 'var(--mui-palette-primary-main)'
-
-                                        Confirm.show(
-                                            t('delete_confirmation'),
-                                            t('delete_confirmation_message_user'),
-                                            t('yes'),
-                                            t('no'),
-                                            async () => {
-                                                setLoading(true)
-                                                const result = await withAuthCheck(() =>
-                                                    deleteRecord({
-                                                        module: 'user',
-                                                        id: row.original.id
-                                                    })
-                                                )
-                                                if (!result) return
-                                                if (result.status) {
-                                                    refreshUsers()
-                                                    toast.success(result.message)
-                                                } else {
-                                                    toast.error(result.message)
-                                                }
-                                                setLoading(false)
-                                            },
-                                            () => { },
-                                            {
-                                                titleColor: primaryColor,
-                                                okButtonBackground: primaryColor,
-                                                cancelButtonBackground: '#ccc'
-                                            }
-                                        )
-                                    }}
-                                >
-                                    <i className='tabler-trash text-[22px] text-rose-600' />
-                                </IconButton>
+                                <Tooltip title={t('delete')}>
+                                    <IconButton
+                                        onClick={() => {
+                                            setSelectedToDelete(row.original.id)
+                                            setDeleteOpen(true)
+                                        }}
+                                    >
+                                        <i className='tabler-trash text-[22px] text-textSecondary' />
+                                    </IconButton>
+                                </Tooltip>
                             )}
                         </Can>
                     </div>
@@ -332,7 +281,19 @@ const UserListTable = ({
                 </div>
             </Slide>
             <Card>
-                <CardHeader title={t('users')} className='pbe-4' />
+                <CardHeader
+                    className='pbe-4'
+                    title={
+                        <div className='flex items-center gap-3'>
+                            <CustomAvatar color='primary' skin='light' variant='rounded' size={34}>
+                                <i className='tabler-users text-[22px]' />
+                            </CustomAvatar>
+                            <Typography variant='h5' className='font-bold'>
+                                {t('users')}
+                            </Typography>
+                        </div>
+                    }
+                />
                 <div className='flex justify-between flex-col md:flex-row items-start md:items-center p-6 border-bs gap-4'>
                     <CustomTextField
                         select
@@ -420,6 +381,28 @@ const UserListTable = ({
                 </div>
 
                 <TablePaginationComponent table={table} pagination={pagination} />
+                <DeleteConfirmationDialog
+                    open={deleteOpen}
+                    handleClose={() => setDeleteOpen(false)}
+                    onConfirm={async () => {
+                        setLoading(true)
+                        const result = await withAuthCheck(() =>
+                            deleteRecord({
+                                module: 'user',
+                                id: selectedToDelete
+                            })
+                        )
+                        if (result?.status) {
+                            refreshUsers()
+                            toast.success(result.message)
+                        } else {
+                            toast.error(result?.message)
+                        }
+                        setLoading(false)
+                    }}
+                    title={t('delete_confirmation_title')}
+                    message={t('delete_confirmation_message')}
+                />
             </Card>
         </>
     )

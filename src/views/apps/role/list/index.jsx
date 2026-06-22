@@ -4,15 +4,18 @@ import { useRoles } from '@/hooks/getRoles'
 import Grid from '@mui/material/Grid2'
 import RoleListTable from './RoleListTable'
 import { useLoader } from '@/contexts/LoaderContext'
+import TableSkeleton from '@/components/TableSkeleton'
 
 const RoleList = ({ permissions, addRole, viewGetRoleData, showEditRecords }) => {
-	const { roles, pagination, loading, fetchRoles } = useRoles()
+	const { roles, pagination, loading, fetched, fetchRoles } = useRoles()
 	const { setLoading } = useLoader()
 
 	const refreshRoles = async () => {
-		setLoading(true)
-		await fetchRoles('', pagination.page, pagination.limit)
-		setLoading(false)
+		fetchRoles('', pagination.page, pagination.limit)
+	}
+
+	if (loading && !fetched) {
+		return <TableSkeleton columns={4} rows={10} />
 	}
 
 	return (

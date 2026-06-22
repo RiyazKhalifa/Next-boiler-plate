@@ -23,29 +23,26 @@ const CustomerDetails = ({ viewCustomerDetails, setLoading }) => {
         <>
             <Card>
                 <CardHeader
-                    title={t('customer_details')}
                     action={
                         <Button
                             variant='outlined'
                             color='secondary'
-                            onClick={() => {
-                                setLoading(true)
-                                setTimeout(() => {
-                                    router.push('/customers')
-                                    setLoading(false)
-                                }, 300)
-                            }}
+                            onClick={() => router.push('/customers')}
                             startIcon={<i className='tabler-arrow-left' />}
                         >
                             {t('back')}
                         </Button>
                     }
-                    avatar={
-                        <CustomAvatar skin='light' color='primary' variant='rounded'>
-                            <i className='tabler-user text-xl' />
-                        </CustomAvatar>
+                    title={
+                        <div className='flex items-center gap-3'>
+                            <CustomAvatar skin='light' color='primary' variant='rounded'>
+                                <i className='tabler-user text-xl' />
+                            </CustomAvatar>
+                            <Typography className='text-lg font-bold'>
+                                {t('customer_details')}
+                            </Typography>
+                        </div>
                     }
-                    titleTypographyProps={{ className: 'text-lg font-medium' }}
                 />
                 <CardContent className='flex flex-col gap-6'>
                     <div className='flex items-center gap-4 bg-actionHover p-4 rounded-md'>

@@ -80,6 +80,16 @@ const VerticalMenu = ({ scrollMenu }) => {
                         {t('customers')}
                     </MenuItem>
                 </Can>
+                <Can permission='contact.list'>
+                    <MenuItem href='/contact_us' icon={<i className='tabler-mail' />}>
+                        {t('contacts')}
+                    </MenuItem>
+                </Can>
+                <Can permission='notification.list'>
+                    <MenuItem href='/notifications' icon={<i className='tabler-bell' />}>
+                        {t('notifications')}
+                    </MenuItem>
+                </Can>
                 <SubMenu label={t('settings')} icon={<i className='tabler-settings' />}>
                     <Can permission='cms.list'>
                         <MenuItem href='/cms' icon={<i className='tabler-file-text' />}>
@@ -94,6 +104,16 @@ const VerticalMenu = ({ scrollMenu }) => {
                     <Can permission='site_setting.list'>
                         <MenuItem href='/site-settings' icon={<i className='tabler-world-cog' />}>
                             {t('site_settings')}
+                        </MenuItem>
+                    </Can>
+                    <Can permission='app_setting.list'>
+                        <MenuItem href='/app-settings' icon={<i className='tabler-device-mobile-cog' />}>
+                            {t('app_settings')}
+                        </MenuItem>
+                    </Can>
+                    <Can permission='app_translation.list'>
+                        <MenuItem href='/app-translations' icon={<i className='tabler-language' />}>
+                            {t('app_translations')}
                         </MenuItem>
                     </Can>
                 </SubMenu>

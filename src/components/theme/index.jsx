@@ -94,7 +94,7 @@ const CustomThemeProvider = props => {
             <ThemeProvider
                 theme={theme}
                 defaultMode={systemMode}
-                modeStorageKey={`${themeConfig.templateName.toLowerCase().split(' ').join('-')}-mui-template-mode`}
+                modeStorageKey={`${(themeConfig.templateName || 'Excellent Web World').toLowerCase().split(' ').join('-')}-mui-template-mode`}
             >
                 <>
                     <ModeChanger systemMode={systemMode} />

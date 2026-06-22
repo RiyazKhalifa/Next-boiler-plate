@@ -1,15 +1,14 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useCallback } from 'react'
 import { getSiteSettings } from '@/app/server/actions/siteSettings'
 import { withAuthCheck } from '@/utils/authWrapper'
-import { useLoader } from '@/contexts/LoaderContext'
 
 export function useSiteSettings() {
     const [settings, setSettings] = useState({})
-    const { setLoading } = useLoader()
+    const [loading, setLoading] = useState(false)
 
-    async function fetchSettings() {
+    const fetchSettings = useCallback(async () => {
         setLoading(true)
         try {
             const res = await withAuthCheck(() => getSiteSettings())
@@ -24,7 +23,7 @@ export function useSiteSettings() {
         } finally {
             setLoading(false)
         }
-    }
+    }, [])
 
-    return { settings, setLoading, fetchSettings }
+    return { settings, loading, fetchSettings }
 }

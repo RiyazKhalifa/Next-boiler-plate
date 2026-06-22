@@ -4,15 +4,20 @@ import { useUsers } from '@/hooks/getUsers'
 import Grid from '@mui/material/Grid2'
 import UserListTable from './UserListTable'
 import { useLoader } from '@/contexts/LoaderContext'
+import TableSkeleton from '@/components/TableSkeleton'
 
 const UserList = ({ addUser, viewGetUserData, showEditRecords, userRoles }) => {
-    const { users, pagination, loading, fetchUsers } = useUsers()
+    const { users, pagination, loading, fetched, fetchUsers } = useUsers()
     const { setLoading } = useLoader()
 
     const refreshUsers = async () => {
-        setLoading(true)
-        await fetchUsers('', pagination.page, pagination.limit)
-        setLoading(false)
+        // We still use global loader for refreshing/actions if desired, 
+        // but fetchUsers handles its own local loading for the initial load/pagination.
+        fetchUsers('', pagination.page, pagination.limit)
+    }
+
+    if (loading && !fetched) {
+        return <TableSkeleton columns={5} rows={10} />
     }
 
     return (

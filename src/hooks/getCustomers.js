@@ -1,14 +1,12 @@
-'use client'
-
 import { useState } from 'react'
-import { getCustomerData } from '@/app/server/actions/customer'
 import { withAuthCheck } from '@/utils/authWrapper'
-import { useLoader } from '@/contexts/LoaderContext'
+import { getCustomerData } from '@/app/server/actions/customer'
 
 export function useCustomers() {
     const [customers, setCustomers] = useState([])
     const [pagination, setPagination] = useState({})
-    const { setLoading } = useLoader()
+    const [loading, setLoading] = useState(false)
+    const [fetched, setFetched] = useState(false)
 
     async function fetchCustomers(search = '', page = 1, limit = 10, sortBy = '', sortOrder = '') {
         setLoading(true)
@@ -29,10 +27,11 @@ export function useCustomers() {
             }))
             setCustomers(mappedCustomers)
             setPagination(pg)
+            setFetched(true)
         } finally {
             setLoading(false)
         }
     }
 
-    return { customers, pagination, setLoading, fetchCustomers }
+    return { customers, pagination, loading, fetched, fetchCustomers }
 }

@@ -24,13 +24,7 @@ const FaqDetails = ({ viewFaqDetails, setLoading }) => {
                         variant='outlined'
                         color='primary'
                         className='mb-4'
-                        onClick={() => {
-                            setLoading(true)
-                            setTimeout(() => {
-                                router.push('/faqs')
-                                setLoading(false)
-                            }, 300)
-                        }}
+                        onClick={() => router.push('/faqs')}
                     >
                         ← {t('back')}
                     </Button>

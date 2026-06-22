@@ -1,11 +1,27 @@
 "use client"
 
 import { configureStore, combineReducers } from "@reduxjs/toolkit"
-import storage from "redux-persist/lib/storage"
+import createWebStorage from "redux-persist/lib/storage/createWebStorage"
 import { persistReducer, persistStore } from "redux-persist"
 import { Provider } from "react-redux"
 import { PersistGate } from "redux-persist/integration/react"
 import { userReducer, customerReducer } from "@/store/userSlice"
+
+const createNoopStorage = () => {
+    return {
+        getItem(_key) {
+            return Promise.resolve(null)
+        },
+        setItem(_key, value) {
+            return Promise.resolve(value)
+        },
+        removeItem(_key) {
+            return Promise.resolve()
+        },
+    }
+}
+
+const storage = typeof window !== "undefined" ? createWebStorage("local") : createNoopStorage()
 
 // Combine reducers if you have more slices
 const rootReducer = combineReducers({

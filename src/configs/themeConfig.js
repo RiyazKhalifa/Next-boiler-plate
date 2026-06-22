@@ -1,7 +1,6 @@
-import i18n from "i18next";
 
 const themeConfig = {
-    templateName: i18n.t("excellent_web_world"),
+    templateName: "Excellent Web World",
     homePageUrl: "/dashboard",
     settingsCookieName: "excellent-web-world",
     mode: "light",

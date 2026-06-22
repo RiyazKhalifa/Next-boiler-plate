@@ -1,14 +1,12 @@
-'use client'
-
 import { useState } from 'react'
-import { getUserData } from '@/app/server/actions/user'
 import { withAuthCheck } from '@/utils/authWrapper'
-import { useLoader } from '@/contexts/LoaderContext'
+import { getUserData } from '@/app/server/actions/user'
 
 export function useUsers() {
     const [users, setUsers] = useState([])
     const [pagination, setPagination] = useState({})
-    const { setLoading } = useLoader()
+    const [loading, setLoading] = useState(false)
+    const [fetched, setFetched] = useState(false)
 
     async function fetchUsers(search = '', page = 1, limit = 10, sortBy = '', sortOrder = '') {
         setLoading(true)
@@ -27,10 +25,11 @@ export function useUsers() {
             }))
             setUsers(mappedUsers)
             setPagination(pg)
+            setFetched(true)
         } finally {
             setLoading(false)
         }
     }
 
-    return { users, pagination, setLoading, fetchUsers }
+    return { users, pagination, loading, fetched, fetchUsers }
 }

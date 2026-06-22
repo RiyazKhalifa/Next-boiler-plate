@@ -1,14 +1,12 @@
-'use client'
-
 import { useState } from 'react'
-import { getRoleData } from '@/app/server/actions/role'
 import { withAuthCheck } from '@/utils/authWrapper'
-import { useLoader } from '@/contexts/LoaderContext'
+import { getRoleData } from '@/app/server/actions/role'
 
 export function useRoles() {
     const [roles, setRoles] = useState([])
     const [pagination, setPagination] = useState({})
-    const { setLoading } = useLoader()
+    const [loading, setLoading] = useState(false)
+    const [fetched, setFetched] = useState(false)
 
     async function fetchRoles(search = '', page = 1, limit = 10, sortBy = '', sortOrder = '') {
         setLoading(true)
@@ -25,10 +23,11 @@ export function useRoles() {
             }))
             setRoles(mappedRoles)
             setPagination(pg)
+            setFetched(true)
         } finally {
             setLoading(false)
         }
     }
 
-    return { roles, pagination, setLoading, fetchRoles }
+    return { roles, pagination, loading, fetched, fetchRoles }
 }

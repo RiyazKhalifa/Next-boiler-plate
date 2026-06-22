@@ -4,15 +4,18 @@ import { useCms } from '@/hooks/getCms'
 import Grid from '@mui/material/Grid2'
 import CmsListTable from './CmsListTable'
 import { useLoader } from '@/contexts/LoaderContext'
+import TableSkeleton from '@/components/TableSkeleton'
 
 const CmsList = ({ viewCmsByIdData, updateCmsPages }) => {
-    const { cms, pagination, loading, fetchCms } = useCms()
+    const { cms, pagination, loading, fetched, fetchCms } = useCms()
     const { setLoading } = useLoader()
 
     const refreshCms = async () => {
-        setLoading(true)
-        await fetchCms('', pagination.page, pagination.limit)
-        setLoading(false)
+        fetchCms('', pagination.page, pagination.limit)
+    }
+
+    if (loading && !fetched) {
+        return <TableSkeleton columns={4} rows={10} />
     }
 
     return (

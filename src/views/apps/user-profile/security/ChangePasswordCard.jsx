@@ -10,7 +10,9 @@ import { object, string, nonEmpty, minLength, pipe } from 'valibot'
 import { useTranslation } from 'react-i18next'
 import CustomTextField from '@core/components/mui/TextField'
 import { withAuthCheck } from '@/utils/authWrapper'
+import { useLoader } from '@/contexts/LoaderContext'
 import toast from 'react-hot-toast'
+import CustomAvatar from '@core/components/mui/Avatar'
 import { Typography } from '@mui/material'
 
 const ChangePasswordCard = ({ changePassword }) => {
@@ -73,10 +75,18 @@ const ChangePasswordCard = ({ changePassword }) => {
     return (
         <div className='flex flex-col gap-6'>
             <div className='bg-white rounded-xl p-6 shadow-sm border border-gray-100'>
-                <div className='mb-6 pb-4 border-b border-gray-100'>
-                    <Typography variant='h5' className='font-bold text-gray-800'>
-                        {t('change_password')}
-                    </Typography>
+                <div className='flex items-center gap-4 border-b pb-5 mb-6'>
+                    <CustomAvatar color='primary' skin='light' variant='rounded' size={44}>
+                        <i className='tabler-lock-password text-[28px]' />
+                    </CustomAvatar>
+                    <div className='flex flex-col'>
+                        <Typography variant='h5' className='font-bold' color="text.primary">
+                            {t('change_password')}
+                        </Typography>
+                        <Typography variant='body2' className='text-slate-500'>
+                            {t('manage_your_passwords_and_security')}
+                        </Typography>
+                    </div>
                 </div>
 
                 <form onSubmit={handleSubmit(onSubmit)}>
@@ -195,7 +205,9 @@ const ChangePasswordCard = ({ changePassword }) => {
 
                     <div className='flex justify-end pt-6 border-t border-gray-100 mt-6 gap-3'>
                         <Button
-                            variant='text'
+                            variant='tonal'
+                            color='secondary'
+                            type='button'
                             disabled={!isDirty}
                             onClick={() => {
                                 reset()
@@ -203,7 +215,6 @@ const ChangePasswordCard = ({ changePassword }) => {
                                 setIsNewPasswordShown(false)
                                 setIsConfirmPasswordShown(false)
                             }}
-                            className='px-8 py-2.5 rounded-l font-semibold normal-case min-w-[140px] bg-[#FFE5E6] text-[#FF4D49] hover:bg-[#FFD6D6]'
                         >
                             {t('cancel')}
                         </Button>
@@ -213,7 +224,12 @@ const ChangePasswordCard = ({ changePassword }) => {
                             disabled={isSubmitting || !isValid}
                             className='px-8 py-2.5 rounded-l font-semibold shadow-md hover:shadow-lg normal-case min-w-[140px]'
                         >
-                            {t('change_password')}
+                            {isSubmitting ? (
+                                <div className='flex items-center gap-2'>
+                                    <i className='tabler-loader animate-spin' />
+                                    <span>{t('saving')}</span>
+                                </div>
+                            ) : t('change_password')}
                         </Button>
                     </div>
                 </form>

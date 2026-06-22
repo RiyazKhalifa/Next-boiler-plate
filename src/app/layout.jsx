@@ -30,10 +30,10 @@ const RootLayout = async ({ children }) => {
     const lang = cookieData.get('lang')?.value || 'ar';
 
     return (
-        <html id="__next" lang={lang} dir={lang === 'ar' ? 'rtl' : 'ltr'}>
+        <html id="__next" lang={lang} dir={lang === 'ar' ? 'rtl' : 'ltr'} suppressHydrationWarning>
             <body className="flex is-full min-bs-full flex-auto flex-col">
+                <InitColorSchemeScript attribute="data" defaultMode={systemMode} />
                 <ReduxProvider>
-                    <InitColorSchemeScript attribute="data" defaultMode={systemMode} />
                     <Toaster position="top-center" reverseOrder />
                     <LanguageProvider initialLang={lang}>
                         <LoaderProvider>

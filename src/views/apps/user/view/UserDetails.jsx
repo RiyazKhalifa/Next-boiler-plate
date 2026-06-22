@@ -33,13 +33,7 @@ const UserDetails = ({ viewUserDetails, setLoading }) => {
                         <Button
                             variant='outlined'
                             color='primary'
-                            onClick={() => {
-                                setLoading(true)
-                                setTimeout(() => {
-                                    router.push('/users')
-                                    setLoading(false)
-                                }, 300)
-                            }}
+                            onClick={() => router.push('/users')}
                         >
                             ← {t('back')}
                         </Button>

@@ -6,6 +6,7 @@ import { useForm, Controller } from 'react-hook-form'
 import { valibotResolver } from '@hookform/resolvers/valibot'
 import { object, string, nonEmpty, pipe } from 'valibot'
 import CustomTextField from '@core/components/mui/TextField'
+import CustomAvatar from '@core/components/mui/Avatar'
 import { useTranslation } from 'react-i18next'
 import toast from 'react-hot-toast'
 import { withAuthCheck } from '@/utils/authWrapper'
@@ -55,12 +56,10 @@ const AddFaqForm = ({ open, handleClose, addFaq, editedFaq, updateFaq, refreshFa
                 return
             }
 
+            setLoading(false)
+            handleClose()
             toast.success(res?.message)
             refreshFaqs()
-            setTimeout(() => {
-                handleClose()
-                reset()
-            }, 1200)
         } catch (err) {
             toast.error(err)
         } finally {
@@ -75,11 +74,18 @@ const AddFaqForm = ({ open, handleClose, addFaq, editedFaq, updateFaq, refreshFa
 
     return (
         <div style={{ display: open ? 'block' : 'none' }} className='p-6 border rounded-md mb-6 bg-white shadow-md'>
-            <div className='border-b pb-4 mb-6'>
-                <Typography variant='h4'>
-                    {editedFaq ? t('edit_faq') : t('add_faq')}
-                </Typography>
-                <Typography>{t('manage_faq_information')}</Typography>
+            <div className='flex items-center gap-4 border-b pb-5 mb-6'>
+                <CustomAvatar color='primary' skin='light' variant='rounded' size={44}>
+                    <i className='tabler-question-mark text-[28px]' />
+                </CustomAvatar>
+                <div className='flex flex-col'>
+                    <Typography variant='h5' className='font-bold' color="text.primary">
+                        {editedFaq ? t('edit_faq') : t('add_faq')}
+                    </Typography>
+                    <Typography variant='body2' className='text-slate-500'>
+                        {t('manage_faq_information')}
+                    </Typography>
+                </div>
             </div>
 
             <form onSubmit={handleSubmit(onSubmit)}>
@@ -158,15 +164,21 @@ const AddFaqForm = ({ open, handleClose, addFaq, editedFaq, updateFaq, refreshFa
 
                     <Grid item xs={12}>
                         <div className='flex items-center flex-row-reverse gap-4 mt-4 border-t pt-4'>
-                            <Button variant='contained' type='submit' disabled={isSubmitting}>
-                                {isSubmitting ? (
-                                    <div className='flex items-center gap-2'>
-                                        <i className='tabler-loader animate-spin' />
-                                        <span>{t('submitting')}</span>
-                                    </div>
-                                ) : t('submit')}
+                            <Button
+                                variant='contained'
+                                type='submit'
+                                disabled={isSubmitting}
+                                startIcon={isSubmitting ? <i className='tabler-loader animate-spin' /> : (editedFaq ? <i className='tabler-device-floppy' /> : <i className='tabler-plus' />)}
+                            >
+                                {isSubmitting ? t('submitting') : (editedFaq ? t('update_faq') : t('add_faq'))}
                             </Button>
-                            <Button variant='tonal' color='error' type='button' onClick={handleReset}>
+                            <Button
+                                variant='tonal'
+                                color='secondary'
+                                type='button'
+                                onClick={handleReset}
+                                startIcon={<i className='tabler-x' />}
+                            >
                                 {t('cancel')}
                             </Button>
                         </div>

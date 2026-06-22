@@ -1,14 +1,12 @@
-'use client'
-
 import { useState } from 'react'
-import { getFaqData } from '@/app/server/actions/faq'
 import { withAuthCheck } from '@/utils/authWrapper'
-import { useLoader } from '@/contexts/LoaderContext'
+import { getFaqData } from '@/app/server/actions/faq'
 
 export function useFaqs() {
     const [faqs, setFaqs] = useState([])
     const [pagination, setPagination] = useState({})
-    const { setLoading } = useLoader()
+    const [loading, setLoading] = useState(false)
+    const [fetched, setFetched] = useState(false)
 
     async function fetchFaqs(search = '', page = 1, limit = 10) {
         setLoading(true)
@@ -25,10 +23,11 @@ export function useFaqs() {
             }))
             setFaqs(mappedFaqs)
             setPagination(pg)
+            setFetched(true)
         } finally {
             setLoading(false)
         }
     }
 
-    return { faqs, pagination, fetchFaqs, setLoading }
+    return { faqs, pagination, fetchFaqs, loading, fetched }
 }

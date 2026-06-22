@@ -55,3 +55,21 @@ export async function forceLogout(token) {
         return err;
     }
 }
+
+export async function verifyPassword(payload) {
+    try {
+        const session = await getServerSession(authOptions)
+        if (!session) {
+            return {
+                status: false,
+                message: 'errors.invalid_token',
+                data: null
+            }
+        }
+        const api = createApiClient({ accessToken: session.accessToken })
+        const { data } = await api.post('/auth/verify-password', payload)
+        return data
+    } catch (err) {
+        return err
+    }
+}

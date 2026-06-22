@@ -4,7 +4,8 @@ import { useEffect, useState, useMemo } from 'react'
 import { useTranslation } from 'react-i18next'
 import classnames from 'classnames'
 import { Notify } from 'notiflix/build/notiflix-notify-aio'
-import { Card, CardHeader, Typography, IconButton, MenuItem } from '@mui/material'
+import { Card, CardHeader, Typography, IconButton, MenuItem, Tooltip } from '@mui/material'
+import DeleteConfirmationDialog from '@/components/DeleteConfirmationDialog'
 import {
     createColumnHelper,
     flexRender,
@@ -19,6 +20,7 @@ import CustomTextField from '@core/components/mui/TextField'
 import AddCmsDrawer from './AddCmsDrawer'
 import tableStyles from '@core/styles/table.module.css'
 import Can from '@/libs/can'
+import CustomAvatar from '@core/components/mui/Avatar'
 
 const columnHelper = createColumnHelper()
 
@@ -34,6 +36,8 @@ const CmsListTable = ({ tableData, pagination, setLoading, fetchCms, refreshCms,
         pageIndex: (pagination.page || 1) - 1,
         pageSize: pagination.limit || 10
     })
+    const [deleteOpen, setDeleteOpen] = useState(false)
+    const [selectedToDelete, setSelectedToDelete] = useState(null)
 
     useEffect(() => {
         setTablePagination({ pageIndex: (pagination.page || 1) - 1, pageSize: pagination.limit || 10 })
@@ -106,26 +110,24 @@ const CmsListTable = ({ tableData, pagination, setLoading, fetchCms, refreshCms,
                 cell: ({ row }) => (
                     <div className='flex items-center gap-2'>
                         <Can permission='cms.update'>
-                            <IconButton
-                                sx={{ transition: 'all 0.2s', '&:hover': { backgroundColor: 'action.hover', '& i': { opacity: 0.7 } } }}
-                                onClick={() => handleOpenEditCms(row.original.id)}
-                            >
-                                <i className='tabler-edit text-[22px] text-slate-600' />
-                            </IconButton>
+                            <Tooltip title={t('edit')}>
+                                <IconButton
+                                    sx={{ transition: 'all 0.2s', '&:hover': { backgroundColor: 'action.hover', '& i': { opacity: 0.7 } } }}
+                                    onClick={() => handleOpenEditCms(row.original.id)}
+                                >
+                                    <i className='tabler-edit text-[22px] text-textSecondary' />
+                                </IconButton>
+                            </Tooltip>
                         </Can>
                         <Can permission='cms.view'>
-                            <IconButton
-                                sx={{ transition: 'all 0.2s', '&:hover': { backgroundColor: 'action.hover', '& i': { opacity: 0.7 } } }}
-                                onClick={() => {
-                                    setLoading(true)
-                                    setTimeout(() => {
-                                        router.push(`/cms/view/${row.original.id}`)
-                                        setLoading(false)
-                                    }, 300)
-                                }}
-                            >
-                                <i className='tabler-eye text-[22px] text-blue-600' />
-                            </IconButton>
+                            <Tooltip title={t('view')}>
+                                <IconButton
+                                    sx={{ transition: 'all 0.2s', '&:hover': { backgroundColor: 'action.hover', '& i': { opacity: 0.7 } } }}
+                                    onClick={() => router.push(`/cms/view/${row.original.id}`)}
+                                >
+                                    <i className='tabler-eye text-[22px] text-textSecondary' />
+                                </IconButton>
+                            </Tooltip>
                         </Can>
                     </div>
                 ),
@@ -181,7 +183,19 @@ const CmsListTable = ({ tableData, pagination, setLoading, fetchCms, refreshCms,
             )}
 
             <Card className='overflow-hidden'>
-                <CardHeader title={t('cms')} className='pbe-4' />
+                <CardHeader
+                    className='pbe-4'
+                    title={
+                        <div className='flex items-center gap-3'>
+                            <CustomAvatar color='primary' skin='light' variant='rounded' size={34}>
+                                <i className='tabler-file-text text-[22px]' />
+                            </CustomAvatar>
+                            <Typography variant='h5' className='font-bold'>
+                                {t('cms')}
+                            </Typography>
+                        </div>
+                    }
+                />
                 <div className='flex justify-between flex-col md:flex-row items-start md:items-center p-6 border-bs gap-4'>
                     <CustomTextField
                         select
@@ -259,6 +273,17 @@ const CmsListTable = ({ tableData, pagination, setLoading, fetchCms, refreshCms,
                     </table>
                 </div>
                 <TablePaginationComponent table={table} pagination={pagination} />
+                <DeleteConfirmationDialog
+                    open={deleteOpen}
+                    handleClose={() => setDeleteOpen(false)}
+                    onConfirm={async () => {
+                        // Assuming there might be a delete action later or for future use
+                        // For now, just a placeholder if needed, or if CMS delete is implemented
+                        console.log('Delete CMS:', selectedToDelete)
+                    }}
+                    title={t('delete_confirmation_title')}
+                    message={t('delete_confirmation_message')}
+                />
             </Card>
         </>
     )

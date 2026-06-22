@@ -1,14 +1,12 @@
-'use client'
-
 import { useState } from 'react'
-import { getCmsData } from '@/app/server/actions/cms'
 import { withAuthCheck } from '@/utils/authWrapper'
-import { useLoader } from '@/contexts/LoaderContext'
+import { getCmsData } from '@/app/server/actions/cms'
 
 export function useCms() {
     const [cms, setCms] = useState([])
     const [pagination, setPagination] = useState({})
-    const { setLoading } = useLoader()
+    const [loading, setLoading] = useState(false)
+    const [fetched, setFetched] = useState(false)
 
     async function fetchCms(search = '', page = 1, limit = 10, sortBy = '', sortOrder = '') {
         setLoading(true)
@@ -27,10 +25,11 @@ export function useCms() {
             }))
             setCms(mappedCms)
             setPagination(pg)
+            setFetched(true)
         } finally {
             setLoading(false)
         }
     }
 
-    return { cms, pagination, fetchCms, setLoading }
+    return { cms, pagination, fetchCms, loading, fetched }
 }

@@ -7,7 +7,8 @@ import { Confirm } from 'notiflix/build/notiflix-confirm-aio'
 import { updateStatus, deleteRecord } from '@/app/server/actions/common'
 import toast from 'react-hot-toast'
 import { withAuthCheck } from '@/utils/authWrapper'
-import { Card, CardHeader, Button, Typography, IconButton, MenuItem, Slide } from '@mui/material'
+import { Card, CardHeader, Button, Typography, IconButton, MenuItem, Slide, Tooltip } from '@mui/material'
+import DeleteConfirmationDialog from '@/components/DeleteConfirmationDialog'
 import { createColumnHelper, flexRender, getCoreRowModel, useReactTable, getSortedRowModel } from '@tanstack/react-table'
 import classnames from 'classnames'
 import AddRoleForm from './AddRoleDrawer'
@@ -18,6 +19,7 @@ import tableStyles from '@core/styles/table.module.css'
 import primaryColorConfig from '@/configs/primaryColorConfig'
 import Can from '@/libs/can'
 import Switch from '@mui/material/Switch'
+import CustomAvatar from '@core/components/mui/Avatar'
 
 const columnHelper = createColumnHelper()
 
@@ -38,6 +40,8 @@ const RoleListTable = ({
 	const [addRoleOpen, setAddRoleOpen] = useState(false)
 	const [editingRole, setEditingRole] = useState(null)
 	const [rowSelection, setRowSelection] = useState({})
+	const [deleteOpen, setDeleteOpen] = useState(false)
+	const [selectedToDelete, setSelectedToDelete] = useState(null)
 	const [data, setData] = useState(tableData || [])
 	const [globalFilter, setGlobalFilter] = useState('')
 	const [sorting, setSorting] = useState([])
@@ -84,31 +88,8 @@ const RoleListTable = ({
 	}
 
 	const handleDeleteRole = id => {
-		Confirm.show(
-			t('delete_confirmation'),
-			t('delete_confirmation_message'),
-			t('yes'),
-			t('no'),
-			async () => {
-				setLoading(true)
-				const result = await withAuthCheck(() =>
-					deleteRecord({
-						module: 'role',
-						id: id
-					})
-				)
-				if (!result) return
-				if (result?.status) {
-					refreshRoles()
-					toast.success(result.message)
-				} else {
-					toast.error(result.message)
-				}
-				setLoading(false)
-			},
-			() => { },
-			{ titleColor: primary1Color, okButtonBackground: primary1Color, cancelButtonBackground: '#ccc' }
-		)
+		setSelectedToDelete(id)
+		setDeleteOpen(true)
 	}
 
 	const columns = useMemo(
@@ -171,23 +152,6 @@ const RoleListTable = ({
 									setLoading(false)
 								}
 							}}
-							sx={{
-								'& .MuiSwitch-switchBase.Mui-checked': {
-									color: '#fff',
-									transform: 'translateX(20px)'
-								},
-								'& .MuiSwitch-switchBase.Mui-checked + .MuiSwitch-track': {
-									backgroundColor: 'green',
-									opacity: 1
-								},
-								'& .MuiSwitch-switchBase:not(.Mui-checked)': {
-									color: '#fff'
-								},
-								'& .MuiSwitch-switchBase:not(.Mui-checked) + .MuiSwitch-track': {
-									backgroundColor: 'red',
-									opacity: 1
-								}
-							}}
 						/>
 					)
 				},
@@ -198,29 +162,35 @@ const RoleListTable = ({
 				cell: ({ row }) => (
 					<div className='flex items-center gap-2'>
 						<Can permission='role.update'>
-							<IconButton
-								onClick={() => handleOpenEditRole(row.original.id)}
-								className='transition-all duration-200'
-							>
-								<i className='tabler-edit text-[22px] text-slate-600' />
-							</IconButton>
+							<Tooltip title={t('edit')}>
+								<IconButton
+									className='transition-all duration-200'
+									onClick={() => handleOpenEditRole(row.original.id)}
+								>
+									<i className='tabler-edit text-[22px] text-textSecondary' />
+								</IconButton>
+							</Tooltip>
 						</Can>
 						<Can permission='role.view'>
-							<IconButton
-								component={Link}
-								href={`/roles/view/${row.original.id}`}
-								className='transition-all duration-200'
-							>
-								<i className='tabler-eye text-[22px] text-blue-600' />
-							</IconButton>
+							<Tooltip title={t('view')}>
+								<IconButton
+									component={Link}
+									href={`/roles/view/${row.original.id}`}
+									className='transition-all duration-200'
+								>
+									<i className='tabler-eye text-[22px] text-textSecondary' />
+								</IconButton>
+							</Tooltip>
 						</Can>
 						<Can permission='role.delete'>
-							<IconButton
-								onClick={() => handleDeleteRole(row.original.id)}
-								className='transition-all duration-200'
-							>
-								<i className='tabler-trash text-[22px] text-rose-600' />
-							</IconButton>
+							<Tooltip title={t('delete')}>
+								<IconButton
+									onClick={() => handleDeleteRole(row.original.id)}
+									className='transition-all duration-200'
+								>
+									<i className='tabler-trash text-[22px] text-textSecondary' />
+								</IconButton>
+							</Tooltip>
 						</Can>
 					</div>
 				),
@@ -278,7 +248,19 @@ const RoleListTable = ({
 				</div>
 			</Slide>
 			<Card>
-				<CardHeader title={t('roles')} className='pbe-4' />
+				<CardHeader
+					className='pbe-4'
+					title={
+						<div className='flex items-center gap-3'>
+							<CustomAvatar color='primary' skin='light' variant='rounded' size={34}>
+								<i className='tabler-lock-access text-[22px]' />
+							</CustomAvatar>
+							<Typography variant='h5' className='font-bold'>
+								{t('roles')}
+							</Typography>
+						</div>
+					}
+				/>
 				<div className='flex justify-between flex-col md:flex-row items-start md:items-center p-6 border-bs gap-4'>
 					<CustomTextField
 						select
@@ -365,7 +347,29 @@ const RoleListTable = ({
 				</div>
 
 				<TablePaginationComponent table={table} pagination={pagination} />
-			</Card>
+				<DeleteConfirmationDialog
+					open={deleteOpen}
+					handleClose={() => setDeleteOpen(false)}
+					onConfirm={async () => {
+						setLoading(true)
+						const result = await withAuthCheck(() =>
+							deleteRecord({
+								module: 'role',
+								id: selectedToDelete
+							})
+						)
+						if (result?.status) {
+							refreshRoles()
+							toast.success(result.message)
+						} else {
+							toast.error(result?.message)
+						}
+						setLoading(false)
+					}}
+					title={t('delete_confirmation_title')}
+					message={t('delete_confirmation_message')}
+				/>
+			</Card >
 		</>
 	)
 }

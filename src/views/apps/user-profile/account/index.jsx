@@ -7,13 +7,16 @@ import { setUser } from "@/store/userSlice"
 import { withAuthCheck } from '@/utils/authWrapper'
 import { getUserProfile, updateUserProfile } from '@/app/server/actions/myProfile'
 import AccountDetails from './AccountDetails'
+import FormSkeleton from '@/components/FormSkeleton'
 
 const Account = () => {
     const [userProfile, setUserProfile] = useState(null)
+    const [loading, setLoading] = useState(true)
     const dispatch = useDispatch()
 
     useEffect(() => {
         const fetchProfile = async () => {
+            setLoading(true)
             try {
                 const res = await withAuthCheck(getUserProfile)
                 if (!res) return
@@ -21,12 +24,14 @@ const Account = () => {
                 dispatch(setUser(res.data))
             } catch (error) {
                 console.error("Failed to load profile:", error)
+            } finally {
+                setLoading(false)
             }
         }
         fetchProfile()
     }, [dispatch])
 
-    if (!userProfile) return <p>Loading profile...</p>
+    if (loading) return <FormSkeleton fields={6} />
 
     return (
         <Grid container spacing={6}>

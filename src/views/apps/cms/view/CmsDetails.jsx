@@ -24,13 +24,7 @@ const CmsDetails = ({ viewCmsDetails, setLoading }) => {
                         variant='outlined'
                         color='primary'
                         className='mb-4'
-                        onClick={() => {
-                            setLoading(true)
-                            setTimeout(() => {
-                                router.push('/cms')
-                                setLoading(false)
-                            }, 300)
-                        }}
+                        onClick={() => router.push('/cms')}
                     >
                         ← {t('back')}
                     </Button>
